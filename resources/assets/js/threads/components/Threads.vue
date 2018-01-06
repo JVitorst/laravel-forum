@@ -13,36 +13,80 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Delectus deserunt ducimus ea eius eligendi est facere ipsa iusto minus nulla quas quisquam rem repellendus reprehenderit suscipit veritatis, voluptatum? Vel, veniam.</td>
-                    <td> At cum, doloremque facere id nostrum obcaecati omnis perferendis suscipit! Animi corporis cum facilis hic nemo odio officia, quasi repellendus reprehenderit tempore.</td>
-                    <td>
-                        <a href="/threads/1">{{open}}</a>
-                    </td>
+
+                <tr v-for="thread in threads_response.data" >
+                    <td>{{ thread.id }}#</td>
+                    <td>{{ thread.title }}</td>
+                    <td>0</td>
+                    <td> <a :href="'/threads/' + thread.id">{{open}}</a></td>
                 </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Asasasas deserunt ducimus ea eius eligendi est facere ipsa iusto minus nulla quas quisquam rem repellendus reprehenderit suscipit veritatis, voluptatum? Vel, veniam.</td>
-                    <td> Joao, doloremque facere id nostrum obcaecati omnis perferendis suscipit! Animi corporis cum facilis hic nemo odio officia, quasi repellendus reprehenderit tempore.</td>
-                    <td>
-                        <a href="/threads/2">{{open}}</a>
-                    </td>
-                </tr>
+
                 </tbody>
             </table>
         </div>
+        <!--New thread -->
+        <div class="card-content">
+            <span class="card-title"> - {{newThread}} - </span>
+
+            <!--submit.prevent = dar submit sem recarregar a página -->
+            <form @submit.prevent = "save()">
+                <div class="input-field">
+                    <input type="text" :placeholder="threadTitle"  v-model="threads_to_save.title">
+                </div>
+                <div class="input-field">
+                    <textarea class="materialize-textarea" :placeholder="threadBody" v-model="threads_to_save.body"></textarea>
+                </div>
+
+                <button type="submit" class="btn red accent-2">
+                {{send}}
+                </button>
+            </form>
+
+        </div>
+        <!-- End / New thread -->
+
+
     </div>
 
 </template>
 
 <script>
+
+
     export default {
     props:[
         'title',
         'threads',
         'replies',
-        'open'
-    ]
-    }
+        'open',
+        'newThread',
+        'threadTitle',
+        'threadBody',
+        'send'
+     ],
+        data(){
+        return {
+            threads_response: [],
+            threads_to_save: { //dados para salvar
+                title: '',
+                body: ''
+                }
+            }
+        },
+        methods:{
+            save(){
+                window.axios.post('/threads', this.threads_to_save).then(() => {
+                    this.getThreads()
+                })
+            },
+            getThreads(){
+                window.axios.get('/threads').then((response) => {
+                    this.threads_response = response.data
+                })
+            }
+        },
+        mounted() {
+        this.getThreads();
+        }
+   }
 </script>
