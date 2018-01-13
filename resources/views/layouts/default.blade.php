@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="/css/materialize-social.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
     <header>
@@ -21,6 +23,10 @@
             @yield('content')
         </section>
     </main>
+
+    <div id="loader">
+        <loader />
+    </div>
 
 
 

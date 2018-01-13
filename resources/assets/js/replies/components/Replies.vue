@@ -1,49 +1,38 @@
 <template>
 <div>
 
-    <div class="card">
-        <div class="card-content">
-            <span class="card-title">
-                Martins {{replied}}
-            </span>
+    <div class="card horizontal" v-for="data in replies" :class=" {'light-blue lighten-4': data.highlighted} " >
+       <div class="card-images">
+           <img :src="data.user.photo_url" alt="">
+       </div>
 
-            <blockquote>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Asperiores blanditiis illo impedit laboriosam possimus. Culpa id impedit minus quo. Delectus hic illum, ipsam iste iusto laboriosam nemo numquam odit saepe?
-            </blockquote>
+        <div class="card-stacked">
+            <div class="card-content">
+                <span class="card-title">
+                    {{data.user.name}} {{replied}}
+                </span>
 
+                <blockquote>
+                   {{data.body}}
+                </blockquote>
+            </div>
+            <div class="card-action" v-if="logged.role === 'admin' ">
+                <a :href="'/reply/highlight/'+data.id">
+                    Em destaque
+                </a>
+            </div>
         </div>
     </div>
-    <div class="card">
-        <div class="card-content">
-            <span class="card-title">
-                Martins {{replied}}
-            </span>
 
-            <blockquote>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Asperiores blanditiis illo impedit laboriosam possimus. Culpa id impedit minus quo. Delectus hic illum, ipsam iste iusto laboriosam nemo numquam odit saepe?
-            </blockquote>
 
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-content">
-            <span class="card-title">
-                Martins {{replied}}
-            </span>
 
-            <blockquote>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Asperiores blanditiis illo impedit laboriosam possimus. Culpa id impedit minus quo. Delectus hic illum, ipsam iste iusto laboriosam nemo numquam odit saepe?
-            </blockquote>
-
-        </div>
-    </div>
-    <div class="card grey lighten-3">
+    <div class="card grey lighten-3" v-if="isClosed == 0 " >
         <div class="card-content">
             <span class="card-title">{{reply}}</span>
 
-            <form action="">
+            <form @submit.prevent="save()" >
                 <div class="input-field">
-                    <textarea rows="10" class="materialize-textarea" :placeholder="yourAnswer">
+                    <textarea rows="10" class="materialize-textarea" :placeholder="yourAnswer" v-model="reply_to_save.body">
                     </textarea>
                 </div>
                 <button type="submit" class="btn red accent-2" >{{send}}</button>
@@ -60,7 +49,44 @@
             'replied',
             'reply',
             'yourAnswer',
-            'send'
-        ]
+            'send',
+            'threadId',
+            'isClosed'
+        ],
+        data(){
+            return {
+                replies: [],
+                logged: window.user || {},
+                thread_id: this.threadId,
+                is_closed: this.isClosed,
+                reply_to_save:{
+                    body:'',
+                    thread_id: this.threadId,
+                }
+            }
+        },
+        methods:{
+            save(){
+                window.axios.post('/replies', this.reply_to_save).then(()=> {
+                    this.getReplies()
+                })
+            },
+            getReplies(){
+                window.axios.get('/replies/' + this.threadId).then((response) => {
+                    this.replies = response.data;
+                });
+            }
+        },
+        mounted(){
+            this.getReplies()
+
+            Echo.channel('new.reply.' + this.thread_id)
+                .listen('NewReply' ,(e) =>{
+                    console.log(e);
+                    if (e.reply){
+                        this.getReplies()
+                    }
+            });
+        }
     }
 </script>

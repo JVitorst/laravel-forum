@@ -14,11 +14,15 @@
                 </thead>
                 <tbody>
 
-                <tr v-for="thread in threads_response.data" >
+                <tr v-for="thread in threads_response.data" :class="{'lime lighten-4': thread.fixed}"  >
                     <td>{{ thread.id }}#</td>
                     <td>{{ thread.title }}</td>
-                    <td>0</td>
-                    <td> <a :href="'/threads/' + thread.id">{{open}}</a></td>
+                    <td>{{ thread.replies_count || 0}}</td>
+                    <td>
+                        <a :href="'/threads/' + thread.id" class="btn">{{open}}</a>
+                        <a :href="'/threads/close/' + thread.id" class="btn" v-if="logged.role === 'admin'">{{close}}</a>
+                        <a :href="'/threads/pin/' + thread.id" class="btn" v-if="logged.role === 'admin'" >{{pin}}</a>
+                    </td>
                 </tr>
 
                 </tbody>
@@ -59,6 +63,8 @@
         'threads',
         'replies',
         'open',
+        'close',
+        'pin',
         'newThread',
         'threadTitle',
         'threadBody',
@@ -67,6 +73,7 @@
         data(){
         return {
             threads_response: [],
+            logged:window.user || {},
             threads_to_save: { //dados para salvar
                 title: '',
                 body: ''
@@ -86,7 +93,15 @@
             }
         },
         mounted() {
-        this.getThreads();
+
+        this.getThreads()
+         Echo.channel('new.thread')
+             .listen('NewThread', (e) => {
+                 console.log(e);
+                 if (e.thread){
+                     this.threads_response.data.splice(0,0, e.thread)
+                 }
+             });
         }
    }
 </script>

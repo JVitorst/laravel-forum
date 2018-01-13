@@ -8,6 +8,8 @@
             threads="{{ __('Threads')  }}"
             replies="{{ __('Replies')  }}"
             open="{{ __('Open')  }}"
+            close="{{ __('Close')  }}"
+            pin="{{ __('Pin')  }}"
             new-thread="{{ __('New Thread')  }}"
             thread-title="{{ __('Title')  }}"
             thread-body="{{ __('Body')  }}"
